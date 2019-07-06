@@ -1,0 +1,14 @@
+h1{
+	color: #00FF00;
+	text-align: center;
+}
+
+h3 {
+	color: #00FF00;
+}
+
+table, th, td, tr {
+  border: 1px solid black;
+  width: 100px;
+  text-align: center;
+}
