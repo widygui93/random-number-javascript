@@ -12,3 +12,7 @@ table, th, td, tr {
   width: 100px;
   text-align: center;
 }
+
+.alert {
+	display : inline-block;
+}
