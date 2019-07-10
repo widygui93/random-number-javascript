@@ -1,6 +1,9 @@
 const x = 2; // x adalah jumlah baris dalam tabel
 const y = 10; // y adalah jumlah kolom dalam tabel
 // ======== panggil createTable untuk membuat table Batu Goncang ===========
+// parameter x adalah jumlah baris
+// parameter y adalah jumlah kolom
+// paramter ketiga(1/0) adalah tipe 1 adalah kolom beraturan, tipe 0 adalah kolom acak 1 sampai x*y
 createTable('tableBatuGoncang',x,y,1);
 // ======== panggil createTable untuk membuat my Table ===========
 createTable('myTable',1,y,0);
@@ -12,8 +15,6 @@ createTable('myTable',1,y,0);
 */
 function createTable(nmTable,jlhBrs,jlhKolom,tipe){
 	var isi;
-	// tipe nilai 1 berarti nilai kolom beraturan
-	// tipe nilai 0 berarti nilai kolom acak 1 - jumlah x*y
 	if(tipe == 1) isi = 1;
 	if(tipe != 1) isi= Math.ceil(Math.random() * (x*y));
 
@@ -86,65 +87,98 @@ tombolPlay.addEventListener('click', function() {
 			}
 		}
 	}
-	// beri warna di cell di tableBatuGoncang
-	colBG = rowBG[simpanIdxBrs].getElementsByTagName("td");
-	colBG[simpanIdxKlm].style.backgroundColor = "#00FF00";
-
-	// buang nilaiTabel di dalam array valueTableBG
-	let delIdx = valueTableBG.indexOf(nilaiTabel);
-	if (delIdx > -1){
-		valueTableBG.splice(delIdx, 1);
-	}
-
-	// cek apakah nilaiTabel yang dipilih random ini ada atau tidak nilainya di myTable
-	// kalau ada maka simpan index-index ny di array indexAda 
-	// karena bisa saja di myTable ada ditemukan lebih dari 1 atau tidak ada sama sekali
-	for(let i2 = 0; i2 < isiMyTabel.length; i2 ++){
-		if(nilaiTabel == isiMyTabel[i2]){
-			ada = true;
-			indexAda.push(i2);
-		} 
-	}
-	// kalau ada maka beri warna di cell-cell di myTable
-	if (ada == true){
-		for(let i3 = 0; i3 < indexAda.length; i3 ++){
-			colMyTableBG[indexAda[i3]].style.backgroundColor = "#00FF00";
-			nilaiTerpilih ++;
+	// putar warna agar terasa sedang acak
+	const waktuMulai = new Date().getTime();
+	let idxAcakWarna = 0;
+	let nilaiAcakWarna = 0;
+	let ranIdxBrs ;
+	let ranIdxKlm ;
+	setInterval(function(){
+		if(new Date().getTime() - waktuMulai > 1000) {
+			clearInterval;
+			return;
 		}
-	}
-	
-	// kurangi kesempatan bermain
-	chance = document.getElementById("kesempatan").innerText;
-	chance = chance - 1;
+		// random index warna acak
+		idxAcakWarna = Math.floor(Math.random() * valueTableBG.length);
+		// isi nilai Acak warna
+		nilaiAcakWarna = valueTableBG[idxAcakWarna];
+		// ini agar tidak error null, kalau var ranIdxBrs dan ranIdxKlm di isi 0 
+		// maka ada bug dimana nilai 1 di table tableBatuGoncang tidak dapat diwarna hijau
+		if(ranIdxBrs != null && ranIdxKlm != null){
+			// jika ada isi maka putihkan kembali nilai acak yang hijau sebelumnya
+			// agar ada kesan putar warnanya
+			colBG = rowBG[ranIdxBrs].getElementsByTagName("td");
+			colBG[ranIdxKlm].style.backgroundColor = "";
+		}
+		// cari index baris dan kolom untuk nilaiAcakWarna
+		for(let idxBrsTblBg = 0; idxBrsTblBg < rowBG.length; idxBrsTblBg++){
+			let colBG = rowBG[idxBrsTblBg].getElementsByTagName("td");
+			for(let idxKlmTblBg = 0; idxKlmTblBg < colBG.length; idxKlmTblBg++){
+				if(nilaiAcakWarna == colBG[idxKlmTblBg].innerText){
+					ranIdxBrs = idxBrsTblBg;
+					ranIdxKlm = idxKlmTblBg;
+				}
+			}
+		}
+		// warnai nilai acak jadi kuning
+		colBG = rowBG[ranIdxBrs].getElementsByTagName("td");
+		colBG[ranIdxKlm].style.backgroundColor = "#ffff33";
+	}, 100);
+	// set agar function dibawah tidak jalan dulu selama 1000 milisekon
+	setTimeout(function() {
+		// kosongkan kembali warna di putar warna terakhir
+		if(ranIdxBrs != null && ranIdxKlm != null){
+			colBG = rowBG[ranIdxBrs].getElementsByTagName("td");
+			colBG[ranIdxKlm].style.backgroundColor = "";
+		}
+		// beri warna di cell di tableBatuGoncang
+		colBG = rowBG[simpanIdxBrs].getElementsByTagName("td");
+		colBG[simpanIdxKlm].style.backgroundColor = "#00FF00";
+		// buang nilaiTabel di dalam array valueTableBG
+		let delIdx = valueTableBG.indexOf(nilaiTabel);
+		if (delIdx > -1){
+			valueTableBG.splice(delIdx, 1);
+		}
+		// cek apakah nilaiTabel yang dipilih random ini ada atau tidak nilainya di myTable
+		// kalau ada maka simpan index-index ny di array indexAda 
+		// karena bisa saja di myTable ada ditemukan lebih dari 1 atau tidak ada sama sekali
+		for(let i2 = 0; i2 < isiMyTabel.length; i2 ++){
+			if(nilaiTabel == isiMyTabel[i2]){
+				ada = true;
+				indexAda.push(i2);
+			} 
+		}
+		// kalau ada maka beri warna di cell-cell di myTable
+		if (ada == true){
+			for(let i3 = 0; i3 < indexAda.length; i3 ++){
+				colMyTableBG[indexAda[i3]].style.backgroundColor = "#00FF00";
+				nilaiTerpilih ++;
+			}
+		}
+		// kurangi kesempatan bermain
+		chance = document.getElementById("kesempatan").innerText;
+		chance = chance - 1;
+		// menampilkan kembali update jumlah kesempatan bermain
+		document.getElementById("kesempatan").innerHTML = chance;
 
-	// menampilkan kembali update jumlah kesempatan bermain
-	document.getElementById("kesempatan").innerHTML = chance;
-
-	// cek apakah player menang
-	if(nilaiTerpilih == 10 && chance >= 0){
-		// tambahkan component alert suskes bootstrap ke dokumen HTML
-		hasil.innerHTML = '<div class="alert alert-success">You <strong>WON!</strong></div>';
-		// panggil function agar ukuran alertnya sesuai dengan konten
-		alertSize();
-		tombolPlay.disabled = true;
-	}
-	// cek apakah player kalah
-	if(nilaiTerpilih != 10 && chance == 0){
-		// tambahkan component alert danger bootstrap ke dokumen HTML
-		hasil.innerHTML = '<div class="alert alert-danger">You <strong>LOSE!</strong></div>';
-		// panggil function agar ukuran alertnya sesuai dengan konten
-		alertSize();
-		tombolPlay.disabled = true;
-	}
+		// cek apakah player menang
+		if(nilaiTerpilih == 10 && chance >= 0){
+			// tambahkan component alert suskes bootstrap ke dokumen HTML
+			hasil.innerHTML = '<div class="alert alert-success">You <strong>WON!</strong></div>';
+			// disable button play agar tidak bisa diklik
+			tombolPlay.disabled = true;
+		}
+		// cek apakah player kalah
+		if(nilaiTerpilih != 10 && chance == 0){
+			// tambahkan component alert danger bootstrap ke dokumen HTML
+			hasil.innerHTML = '<div class="alert alert-danger">You <strong>LOSE!</strong></div>';
+			// disable button play agar tidak bisa diklik
+			tombolPlay.disabled = true;
+		}
+	}, 1000);
 });
-
 // ketika button reset di klik
 const tombolReset = document.getElementsByTagName('button')[1];
 tombolReset.addEventListener('click', function() {
 	window.location.reload();
 });
-
-// function agar ukuran alert bootstrap sesuai dengan konten
-function alertSize(){
-	document.getElementsByClassName("alert")[0].style.display = "inline-block";
-}
